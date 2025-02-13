@@ -1,0 +1,206 @@
+	#include <iostream>
+	#include <string>
+	using namespace std;
+	
+	
+	struct Task {
+	    string description;
+	    bool isCompleted;
+	
+	    Task() : description(""), isCompleted(false) {}
+	    Task(string desc) : description(desc), isCompleted(false) {}
+	};
+	
+	
+	void displayMenu() {
+	    cout << "\nTo-Do List Manager\n";
+	    cout << "-------------------\n";
+	    cout << "1. Add Task\n";
+	    cout << "2. View Tasks\n";
+	    cout << "3. Mark Task as Completed\n";
+	    cout << "4. Remove Task\n";
+	    cout << "5. Exit\n";
+	    cout << "Enter your choice: ";
+	}
+	
+	
+	void addTask(Task tasks[], int& taskCount, int maxTasks) {
+	    if (taskCount >= maxTasks) {
+	        cout << "Task list is full. Cannot add more tasks.\n";
+	        return;
+	    }
+	
+	    string description;
+	    cout << "Enter the task description: ";
+	    cin.ignore(); // To clear the newline character left by the previous input
+	    getline(cin, description);  // Get the full line as task description
+	    tasks[taskCount] = Task(description);  // Add task to the list
+	    taskCount++;  // Increment the task count
+	    cout << "Task added successfully!" << endl;
+	}
+	
+	// Function to view the tasks
+	void viewTasks(const Task tasks[], int taskCount) {
+	    if (taskCount == 0) {
+	        cout << "No tasks available.\n";
+	        return;
+	    }
+	
+	    cout << "\nList of Tasks:\n";
+	    for (int i = 0; i < taskCount; ++i) {
+	        cout << (i + 1) << ". " << tasks[i].description;
+	        cout << " - " << (tasks[i].isCompleted ? "Completed" : "Pending") << endl;
+	    }
+	}
+	
+	// Function to mark a task as completed
+	void markTaskAsCompleted(Task tasks[], int taskCount) {
+	    int taskId;
+	    cout << "Enter the task number to mark as completed: ";
+	    cin >> taskId;
+	
+	    if (taskId < 1 || taskId > taskCount) {
+	        cout << "Invalid task number!\n";
+	        return;
+	    }
+	
+	    tasks[taskId - 1].isCompleted = true;
+	    cout << "Task marked as completed!\n";
+	}
+	
+	// Function to remove a task
+	void removeTask(Task tasks[], int& taskCount) {
+	    int taskId;
+	    cout << "Enter the task number to remove: ";
+	    cin >> taskId;
+	
+	    if (taskId < 1 || taskId > taskCount) {
+	        cout << "Invalid task number!\n";
+	        return;
+	    }
+	
+	    // Shift tasks to remove the selected task
+	    for (int i = taskId - 1; i < taskCount - 1; ++i) {
+	        tasks[i] = tasks[i + 1];
+	    }
+	
+	    taskCount--;  // Decrease the task count
+	    cout << "Task removed successfully!\n";
+	}
+	
+	// Main function
+	int main() {
+	    const int maxTasks = 10;  // Maximum number of tasks the array can hold
+	    Task tasks[maxTasks];  // Array to hold tasks
+	    int taskCount = 0;  // Current count of tasks
+	    int choice;
+	
+	    while (true) {
+	        displayMenu();
+	        cin >> choice;
+	
+	        switch (choice) {
+	            case 1:
+	                addTask(tasks, taskCount, maxTasks);  // Add a new task
+	                break;
+	            case 2:
+	                viewTasks(tasks, taskCount);  // View all tasks
+	                break;
+	            case 3:
+	                markTaskAsCompleted(tasks, taskCount);  // Mark task as completed
+	                break;
+	            case 4:
+	                removeTask(tasks, taskCount);  // Remove a task
+	                break;
+	            case 5:
+	                cout << "Exiting the To-Do List Manager. Goodbye!\n";
+	                return 0;  // Exit the program
+	            default:
+	                cout << "Invalid choice. Please try again.\n";
+	        }
+	    }
+	
+	    return 0;
+	}
+OUTPUT
+
+To-Do List Manager
+-------------------
+1. Add Task
+2. View Tasks
+3. Mark Task as Completed
+4. Remove Task
+5. Exit
+Enter your choice: 1
+Enter the task description: WRITING
+Task added successfully!
+
+To-Do List Manager
+-------------------
+1. Add Task
+2. View Tasks
+3. Mark Task as Completed
+4. Remove Task
+5. Exit
+Enter your choice: 2
+
+List of Tasks:
+1. WRITING - Pending
+
+To-Do List Manager
+-------------------
+1. Add Task
+2. View Tasks
+3. Mark Task as Completed
+4. Remove Task
+5. Exit
+Enter your choice: 1
+Enter the task description: READING
+Task added successfully!
+
+To-Do List Manager
+-------------------
+1. Add Task
+2. View Tasks
+3. Mark Task as Completed
+4. Remove Task
+5. Exit
+Enter your choice: 3
+Enter the task number to mark as completed: 1
+Task marked as completed!
+
+To-Do List Manager
+-------------------
+1. Add Task
+2. View Tasks
+3. Mark Task as Completed
+4. Remove Task
+5. Exit
+Enter your choice: 4
+Enter the task number to remove: 2
+Task removed successfully!
+
+To-Do List Manager
+-------------------
+1. Add Task
+2. View Tasks
+3. Mark Task as Completed
+4. Remove Task
+5. Exit
+Enter your choice: 2
+
+List of Tasks:
+1. WRITING - Completed
+
+To-Do List Manager
+-------------------
+1. Add Task
+2. View Tasks
+3. Mark Task as Completed
+4. Remove Task
+5. Exit
+Enter your choice: 5
+Exiting the To-Do List Manager. Goodbye!
+
+
+=== Code Execution Successful ===
