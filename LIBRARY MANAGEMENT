@@ -1,0 +1,240 @@
+	#include <iostream>
+	#include <string>
+	using namespace std;
+	
+	const int MAX_BOOKS = 100;
+	const int MAX_BORROWERS = 100;
+	
+	// Structure to hold Book data
+	struct Book {
+	    string title;
+	    string author;
+	    string ISBN;
+	    bool isAvailable;
+	};
+	
+	// Structure for Borrower details
+	struct Borrower {
+	    string name;
+	    string borrowedBookISBN;
+	    int borrowDay;  // Simple day count since the start of the year (e.g., day 50)
+	};
+	
+	// Function to display the menu
+	void displayMenu() {
+	    cout << "\nLibrary Management System\n";
+	    cout << "-------------------------\n";
+	    cout << "1. Add Book\n";
+	    cout << "2. Search Book\n";
+	    cout << "3. Checkout Book\n";
+	    cout << "4. Return Book\n";
+	    cout << "5. Calculate Fine\n";
+	    cout << "6. Exit\n";
+	    cout << "Enter your choice: ";
+	}
+	
+	// Function to add a book to the database
+	void addBook(Book books[], int& bookCount) {
+	    if (bookCount >= MAX_BOOKS) {
+	        cout << "Book database is full. Cannot add more books.\n";
+	        return;
+	    }
+	
+	    string title, author, ISBN;
+	    cout << "Enter the book title: ";
+	    cin.ignore();  // To ignore the newline from previous input
+	    getline(cin, title);
+	
+	    cout << "Enter the author name: ";
+	    getline(cin, author);
+	
+	    cout << "Enter the ISBN: ";
+	    getline(cin, ISBN);
+	
+	    // Add book to the array
+	    books[bookCount] = {title, author, ISBN, true};
+	    bookCount++;
+	    cout << "Book added successfully!\n";
+	}
+	
+	// Function to search for a book
+	void searchBook(const Book books[], int bookCount) {
+	    string searchTerm;
+	    cout << "Enter search term (title, author, or ISBN): ";
+	    cin.ignore();
+	    getline(cin, searchTerm);
+	
+	    bool found = false;
+	    for (int i = 0; i < bookCount; ++i) {
+	        if (books[i].title == searchTerm || books[i].author == searchTerm || books[i].ISBN == searchTerm) {
+	            cout << "\nBook Found!\n";
+	            cout << "Title: " << books[i].title << "\n";
+	            cout << "Author: " << books[i].author << "\n";
+	            cout << "ISBN: " << books[i].ISBN << "\n";
+	            cout << "Availability: " << (books[i].isAvailable ? "Available" : "Checked out") << "\n";
+	            found = true;
+	            break;
+	        }
+	    }
+	
+	    if (!found) {
+	        cout << "No matching book found.\n";
+	    }
+	}
+	
+	// Function to checkout a book
+	void checkoutBook(Book books[], int bookCount, Borrower borrowers[], int& borrowerCount) {
+	    string ISBN;
+	    cout << "Enter the ISBN of the book you want to checkout: ";
+	    cin.ignore();
+	    getline(cin, ISBN);
+	
+	    bool found = false;
+	    for (int i = 0; i < bookCount; ++i) {
+	        if (books[i].ISBN == ISBN && books[i].isAvailable) {
+	            string name;
+	            int borrowDay;
+	            cout << "Enter borrower's name: ";
+	            getline(cin, name);
+	            cout << "Enter the borrow day (e.g., 50 for the 50th day of the year): ";
+	            cin >> borrowDay;
+	
+	            // Checkout the book
+	            books[i].isAvailable = false;
+	            borrowers[borrowerCount] = {name, ISBN, borrowDay};
+	            borrowerCount++;
+	            cout << "Book checked out successfully!\n";
+	            found = true;
+	            break;
+	        }
+	    }
+	
+	    if (!found) {
+	        cout << "The book is either unavailable or does not exist.\n";
+	    }
+	}
+	
+	// Function to return a book
+	void returnBook(Book books[], int bookCount, Borrower borrowers[], int& borrowerCount) {
+	    string ISBN;
+	    cout << "Enter the ISBN of the book to return: ";
+	    cin.ignore();
+	    getline(cin, ISBN);
+	
+	    bool found = false;
+	    for (int i = 0; i < bookCount; ++i) {
+	        if (books[i].ISBN == ISBN && !books[i].isAvailable) {
+	            // Find the borrower and update status
+	            for (int j = 0; j < borrowerCount; ++j) {
+	                if (borrowers[j].borrowedBookISBN == ISBN) {
+	                    books[i].isAvailable = true;
+	                    cout << "Book returned successfully!\n";
+	                    found = true;
+	                    break;
+	                }
+	            }
+	            break;
+	        }
+	    }
+	
+	    if (!found) {
+	        cout << "The book either doesn't exist or was not checked out.\n";
+	    }
+	}
+	
+	// Function to calculate fine for overdue books
+	void calculateFine(const Book books[], int bookCount, const Borrower borrowers[], int borrowerCount) {
+	    string ISBN;
+	    cout << "Enter the ISBN of the borrowed book: ";
+	    cin.ignore();
+	    getline(cin, ISBN);
+	
+	    bool found = false;
+	    for (int i = 0; i < borrowerCount; ++i) {
+	        if (borrowers[i].borrowedBookISBN == ISBN) {
+	            int currentDay;
+	            cout << "Enter the current day (e.g., 70 for the 70th day of the year): ";
+	            cin >> currentDay;
+	
+	            int borrowDays = currentDay - borrowers[i].borrowDay;
+	            if (borrowDays > 14) {  // If borrowed for more than 14 days
+	                double fine = (borrowDays - 14) * 0.5;  // 0.5 unit fine per day overdue
+	                cout << "Fine: $" << fine << "\n";
+	            } else {
+	                cout << "No fine. The book is within the allowed borrow time.\n";
+	            }
+	
+	            found = true;
+	            break;
+	        }
+	    }
+	
+	    if (!found) {
+	        cout << "No such borrowed book found.\n";
+	    }
+	}
+	
+	// Main function
+	int main() {
+	    Book books[MAX_BOOKS];        // Array to store the book database
+	    Borrower borrowers[MAX_BORROWERS]; // Array to store borrower information
+	    int bookCount = 0;           // Counter for the number of books
+	    int borrowerCount = 0;       // Counter for the number of borrowers
+	    int choice;
+	
+	    while (true) {
+	        displayMenu();
+	        cin >> choice;
+	
+	        switch (choice) {
+	            case 1:
+	                addBook(books, bookCount);  // Add a new book
+	                break;
+	            case 2:
+	                searchBook(books, bookCount);  // Search for a book
+	                break;
+	            case 3:
+	                checkoutBook(books, bookCount, borrowers, borrowerCount);  // Checkout a book
+	                break;
+	            case 4:
+	                returnBook(books, bookCount, borrowers, borrowerCount);  // Return a book
+	                break;
+	            case 5:
+	                calculateFine(books, bookCount, borrowers, borrowerCount);  // Calculate fine for overdue books
+	                break;
+	            case 6:
+	                cout << "Exiting the Library Management System. Goodbye!\n";
+	                return 0;  // Exit the program
+	            default:
+	                cout << "Invalid choice. Please try again.\n";
+	        }
+	    }
+	
+	    return 0;
+	}
+OUTPUT
+
+Library Management System
+-------------------------
+1. Add Book
+2. Search Book
+3. Checkout Book
+4. Return Book
+5. Calculate Fine
+6. Exit
+Enter your choice: 1
+Enter the book title: MEIN KAMPF
+Enter the author name: ADOLF HITLER 
+Enter the ISBN: 123456
+Book added successfully!
+
+Library Management System
+-------------------------
+1. Add Book
+2. Search Book
+3. Checkout Book
+4. Return Book
+5. Calculate Fine
+6. Exit
+Enter your choice: 
+=== Session Ended. Please Run the code again ===
